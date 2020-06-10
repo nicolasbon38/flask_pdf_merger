@@ -1,0 +1,10 @@
+body{
+    background-color: lightgrey;
+    text-align: center;
+    font-family: Helvetica;
+}
+
+
+div.button_upload a{
+    display: block;
+}

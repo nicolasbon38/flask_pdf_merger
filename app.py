@@ -1,12 +1,21 @@
 #!/usr/bin/env python3
 
+
 from flask import Flask, render_template, send_file, flash,request, redirect, url_for
 from werkzeug.utils import secure_filename
 
 import os
 from pdfrw import PdfReader, PdfWriter
 
-UPLOAD_FOLDER='/home/nicolas/boulot/pdf_merger/uploads/'
+import webbrowser
+
+
+UPLOAD_FOLDER='./uploads/'
+
+#Si par malheur le dossier uploadds n'existe poas, il faut le créer
+if not os.path.exists('./uploads/'):
+    os.makedirs('./uploads/')
+
 ALLOWED_EXTENSIONS = {'pdf'}
 
 
@@ -18,11 +27,15 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+
+#Page home
 @app.route('/', methods=['GET'])
 
 def home():    
     return render_template("home.html")
 
+
+#page fusion
 @app.route('/fusion', methods=['GET'])
 
 def merge():
@@ -31,15 +44,20 @@ def merge():
     for fname in sorted(files):
         writer.addpages(PdfReader(os.path.join('uploads', fname)).pages)
     writer.write("output.pdf")
+    #On supprime les fichiers stockés en local
+    files = os.listdir('./uploads/')
+    for f in files:
+        os.remove('./uploads/' + f)
     return render_template("fusion.html")
 
+#Page download
 @app.route('/download', methods=['GET'])
 
 def download():
     return send_file('output.pdf')
 
+#Page upload
 @app.route('/upload', methods=['GET', 'POST'])
-
 
 def upload():
     if request.method == 'POST':
@@ -58,16 +76,10 @@ def upload():
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             return redirect(url_for('upload',
                                     filename=filename))
-    return '''
-        <!doctype html>
-    <title>Upload new File</title>
-    <h1>Upload new File</h1>
-    <form method=post enctype=multipart/form-data>
-      <input type=file name=file>
-      <input type=submit value=Upload>
-      <a href=fusion> Merge ! </a>
-    </form>
-    '''
+    return render_template("upload.html")
 
 if __name__ == '__main__':
+    #on ouvre une fenêtre du navigateur en écoutant le bon port
+    webbrowser.open('http://127.0.0.1:5000/')
+    #On lance le serveur en local
     app.run()
