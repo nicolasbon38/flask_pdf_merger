@@ -3,3 +3,8 @@ body{
     text-align: center;
     font-family: Helvetica;
 }
+
+div.list_uploaded_files{
+    background-color: white;
+}
+

@@ -26,7 +26,11 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-
+def list_uploaded_files():
+    uploaded_files = []
+    for file_name in os.listdir('./uploads/'):
+        uploaded_files.append(file_name)
+    return uploaded_files
 
 #Page home
 @app.route('/', methods=['GET'])
@@ -76,7 +80,7 @@ def upload():
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             return redirect(url_for('upload',
                                     filename=filename))
-    return render_template("upload.html")
+    return render_template("upload.html", uploaded_files=list_uploaded_files())
 
 if __name__ == '__main__':
     #on ouvre une fenêtre du navigateur en écoutant le bon port
